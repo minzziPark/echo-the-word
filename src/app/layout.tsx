@@ -7,8 +7,8 @@ import { Navigation } from "@/components/navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "말씀과 기도",
-  description: "성경 암송과 기도제목을 통한 신앙 성장 앱",
+  title: "echo the word",
+  description: "대차교회 아웃리치 주제 말씀 암송 서비스",
 };
 
 export default function RootLayout({
