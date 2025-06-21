@@ -12,14 +12,22 @@ export const metadata: Metadata = {
   openGraph: {
     title: "echo the word",
     description: "대차교회 아웃리치 주제 말씀 암송 서비스",
+    type: "website",
+    url: "https://echo-the-word.vercel.app",
     images: [
       {
-        url: "/bible.jpg",
+        url: "https://echo-the-word.vercel.app/bible.jpg",
         width: 1200,
         height: 630,
         alt: "Echo the Word",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "echo the word",
+    description: "대차교회 아웃리치 주제 말씀 암송 서비스",
+    images: ["https://echo-the-word.vercel.app/bible.jpg"],
   },
 };
 
