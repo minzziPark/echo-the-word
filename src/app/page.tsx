@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Heart, BookOpen, Eye, EyeOff } from "lucide-react";
+import {
+  Heart,
+  BookOpen,
+  Eye,
+  EyeOff,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,7 +26,18 @@ export default function HomePage() {
   const [triggerHeartAnimation, setTriggerHeartAnimation] = useState(false);
   const [triggerConfetti, setTriggerConfetti] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVerseHidden, setIsVerseHidden] = useState(false);
+  const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
+
+  const verses = [
+    {
+      reference: "요한복음 13:34-35",
+      text: "내가 너희에게 새 계명을 준다 서로 사랑하라 내가 너희를 사랑한 것같이 너희도 서로 사랑하라 너희가 서로 사랑하면 이로써 모든 사람들이 너희가 내 제자임을 알게 될 것이다",
+    },
+    {
+      reference: "로마서 12:21",
+      text: "악에 지지 말고 선으로 악을 이기십시오",
+    },
+  ];
 
   useEffect(() => {
     const fetchHearts = async () => {
@@ -50,17 +68,24 @@ export default function HomePage() {
     updateHearts();
   }, [hearts]);
 
-  const todayVerse = {
-    reference: "요한복음 13:34-35",
-    text: "내가 너희에게 새 계명을 준다 서로 사랑하라 내가 너희를 사랑한 것같이 너희도 서로 사랑하라 너희가 서로 사랑하면 이로써 모든 사람들이 너희가 내 제자임을 알게 될 것이다",
-  };
+  // 각 말씀별 숨김 상태를 개별적으로 관리
+  const [verseHiddenStates, setVerseHiddenStates] = useState<boolean[]>(
+    new Array(verses.length).fill(false)
+  );
 
-  const verseText = todayVerse.text.replace(/\s/g, "");
+  const currentVerse = verses[currentVerseIndex];
+  const isCurrentVerseHidden = verseHiddenStates[currentVerseIndex];
+
+  const verseText1 = verses[0].text.replace(/\s/g, "");
+  const verseText2 = verses[1].text.replace(/\s/g, "");
 
   const handleSubmit = async () => {
     if (userInput.trim() && !isSubmitting) {
       setIsSubmitting(true);
-      if (verseText !== userInput.replace(/\s/g, "")) {
+      if (
+        verseText1 !== userInput.replace(/\s/g, "") &&
+        verseText2 !== userInput.replace(/\s/g, "")
+      ) {
         setIsSubmitting(false);
         alert("입력한 말씀이 올바르지 않습니다. 다시 확인해주세요.");
         return;
@@ -82,6 +107,28 @@ export default function HomePage() {
         setIsSubmitting(false);
       }, 2000);
     }
+  };
+
+  const nextVerse = () => {
+    if (currentVerseIndex + 1 <= verses.length - 1) {
+      setCurrentVerseIndex((prev) => (prev + 1) % verses.length);
+    }
+  };
+
+  const prevVerse = () => {
+    if (currentVerseIndex - 1 >= 0) {
+      setCurrentVerseIndex(
+        (prev) => (prev - 1 + verses.length) % verses.length
+      );
+    }
+  };
+
+  const toggleVerseVisibility = () => {
+    setVerseHiddenStates((prev) => {
+      const newStates = [...prev];
+      newStates[currentVerseIndex] = !newStates[currentVerseIndex];
+      return newStates;
+    });
   };
 
   return (
@@ -147,35 +194,58 @@ export default function HomePage() {
       <Card className="border-l-4 border-l-blue-500 shadow-lg gap-0">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-md">
+            <div className="flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-blue-500" />
-              오늘의 말씀
-            </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsVerseHidden(!isVerseHidden)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              {isVerseHidden ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
-            </Button>
+              <CardTitle className="text-md">오늘의 말씀</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleVerseVisibility}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                {isCurrentVerseHidden ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={prevVerse}
+                className="text-gray-500 hover:text-gray-700 disabled:opacity-50"
+                disabled={currentVerseIndex === 0}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-xs font-medium text-gray-600 min-w-[30px] text-center">
+                {currentVerseIndex + 1}/{verses.length}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={nextVerse}
+                className="text-gray-500 hover:text-gray-700"
+                disabled={currentVerseIndex === verses.length - 1}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="relative">
               <p
-                className={`text-md leading-relaxed text-gray-800 bg-blue-50 p-4 rounded-lg transition-all duration-300 ${
-                  isVerseHidden ? "blur-md select-none" : ""
+                className={`text-md leading-relaxed text-gray-800 font-medium bg-blue-50 p-4 rounded-lg transition-all duration-300 ${
+                  isCurrentVerseHidden ? "blur-md select-none" : ""
                 }`}
               >
-                {todayVerse.text}
+                {currentVerse.text}
               </p>
-              {isVerseHidden && (
+              {isCurrentVerseHidden && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-white/90 px-4 py-2 rounded-lg shadow-sm">
                     <p className="text-sm text-gray-600">
@@ -185,8 +255,8 @@ export default function HomePage() {
                 </div>
               )}
             </div>
-            <p className="text-right text-blue-600 font-semibold text-sm">
-              - {todayVerse.reference} -
+            <p className="text-right text-blue-600 font-semibold">
+              - {currentVerse.reference} -
             </p>
           </div>
         </CardContent>
